@@ -774,3 +774,11 @@ tbody tr:hover {
 .bounce {
     animation: bounce 1s infinite;
 }
+
+
+/* Gráficos más pequeños y responsivos */
+canvas {
+    max-width: 100% !important;
+    height: auto !important;
+    max-height: 300px;
+}
