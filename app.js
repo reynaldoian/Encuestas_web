@@ -245,6 +245,7 @@ function renderResults() {
     const statTotalVotes = document.getElementById('statTotalVotes');
     const statParticipationRate = document.getElementById('statParticipationRate');
     const resultsContent = document.getElementById('resultsContent');
+    const chartType = document.getElementById('chartType')?.value || 'bar';
 
     const totalParticipants = participants.length;
     const totalVotes = votes.length;
@@ -325,24 +326,37 @@ function renderResults() {
             const data = sortedVotes.map(([, votos]) => votos);
             const ctx = document.getElementById(`chart_${idx}`);
             if (ctx) {
+                const isPieOrDoughnut = chartType === 'pie' || chartType === 'doughnut';
                 new Chart(ctx, {
-                    type: 'bar',
+                    type: chartType,
                     data: {
                         labels: labels,
                         datasets: [{
                             label: 'Votos',
                             data: data,
-                            backgroundColor: 'rgba(102, 126, 234, 0.7)',
-                            borderColor: 'rgba(102, 126, 234, 1)',
+                            backgroundColor: [
+                                'rgba(102, 126, 234, 0.7)',
+                                'rgba(118, 75, 162, 0.7)',
+                                'rgba(16, 185, 129, 0.7)',
+                                'rgba(245, 158, 11, 0.7)',
+                                'rgba(239, 68, 68, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(102, 126, 234, 1)',
+                                'rgba(118, 75, 162, 1)',
+                                'rgba(16, 185, 129, 1)',
+                                'rgba(245, 158, 11, 1)',
+                                'rgba(239, 68, 68, 1)'
+                            ],
                             borderWidth: 1
                         }]
                     },
                     options: {
                         responsive: true,
                         plugins: {
-                            legend: { display: false }
+                            legend: { display: isPieOrDoughnut }
                         },
-                        scales: {
+                        scales: isPieOrDoughnut ? {} : {
                             y: { beginAtZero: true, ticks: { stepSize: 1 } }
                         }
                     }
