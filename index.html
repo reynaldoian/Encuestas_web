@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Encuestas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Mensaje de notificación -->
+    <div id="notification" class="notification"></div>
+
+    <!-- Contenedor principal -->
+    <div class="container">
+        <h1 class="main-title">Sistema de Encuestas</h1>
+
+        <!-- Navegación por pestañas -->
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="participants">
+                📋 Participantes
+            </button>
+            <button class="tab-btn" data-tab="positions">
+                📝 Cargos/Preguntas
+            </button>
+            <button class="tab-btn" data-tab="results">
+                📊 Resultados
+            </button>
+        </div>
+
+        <!-- Contenido de las pestañas -->
+        <div id="tabContent">
+            <!-- Pestaña: Participantes -->
+            <div id="participants" class="tab-content active">
+                <div class="card">
+                    <h2 class="card-title">Registrar Participante</h2>
+                    <div class="form-grid">
+                        <input type="email" id="participantEmail" placeholder="Correo electrónico *" required>
+                        <input type="text" id="participantNombre" placeholder="Nombre *" required>
+                        <input type="text" id="participantApellido" placeholder="Apellido *" required>
+                        <input type="text" id="participantCampo1" placeholder="Campo 1">
+                        <input type="text" id="participantCampo2" placeholder="Campo 2">
+                        <input type="text" id="participantCampo3" placeholder="Campo 3">
+                    </div>
+                    <button class="btn btn-primary" onclick="registerParticipant()">
+                        ➕ Registrar Participante
+                    </button>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Participantes Registrados (<span id="participantCount">0</span>)</h3>
+                        <button class="btn btn-success btn-sm" onclick="sendAllEmails()">
+                            ✉️ Enviar a Todos
+                        </button>
+                    </div>
+                    <div class="table-container">
+                        <table id="participantsTable">
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Nombre</th>
+                                    <th>Apellido</th>
+                                    <th>Estado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="participantsTableBody">
+                                <!-- Contenido dinámico -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña: Cargos/Preguntas -->
+            <div id="positions" class="tab-content">
+                <div class="card">
+                    <h2 class="card-title">Registrar Cargo/Pregunta</h2>
+                    <input type="text" id="positionTitulo" placeholder="Título del cargo o pregunta *" class="input-full" required>
+                    <textarea id="positionCandidatos" placeholder="Candidatos u opciones (separados por comas) *" rows="3" class="input-full" required></textarea>
+                    <p class="help-text">Ejemplo: Juan Pérez, María García, No sé, Ninguno</p>
+                    <button class="btn btn-primary" onclick="registerPosition()">
+                        ➕ Agregar Cargo
+                    </button>
+                </div>
+
+                <div class="card">
+                    <h3 class="card-title">Cargos Registrados (<span id="positionCount">0</span>)</h3>
+                    <div id="positionsList">
+                        <!-- Contenido dinámico -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pestaña: Resultados -->
+            <div id="results" class="tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Participantes</div>
+                        <div class="stat-value" id="statTotalParticipants">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Votos Emitidos</div>
+                        <div class="stat-value stat-success" id="statTotalVotes">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Tasa de Participación</div>
+                        <div class="stat-value stat-info" id="statParticipationRate">0%</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2 class="card-title">📊 Resultados de la Encuesta</h2>
+                    <div id="resultsContent">
+                        <!-- Contenido dinámico -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

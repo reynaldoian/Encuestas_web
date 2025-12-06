@@ -1,0 +1,92 @@
+{
+  "participants": [
+    {
+      "id": 1701234567890,
+      "email": "juan.perez@example.com",
+      "nombre": "Juan",
+      "apellido": "Pérez",
+      "campo1": "Departamento Marketing",
+      "campo2": "Empleado",
+      "campo3": "Sucursal Centro",
+      "registrado": "2024-12-01T10:30:00.000Z",
+      "haVotado": true
+    },
+    {
+      "id": 1701234567891,
+      "email": "maria.garcia@example.com",
+      "nombre": "María",
+      "apellido": "García",
+      "campo1": "Departamento Ventas",
+      "campo2": "Gerente",
+      "campo3": "Sucursal Norte",
+      "registrado": "2024-12-01T11:15:00.000Z",
+      "haVotado": false
+    },
+    {
+      "id": 1701234567892,
+      "email": "carlos.rodriguez@example.com",
+      "nombre": "Carlos",
+      "apellido": "Rodríguez",
+      "campo1": "Departamento IT",
+      "campo2": "Empleado",
+      "campo3": "Sucursal Sur",
+      "registrado": "2024-12-01T12:00:00.000Z",
+      "haVotado": true
+    }
+  ],
+  "positions": [
+    {
+      "id": 1701234567893,
+      "titulo": "Presidente de la Asociación",
+      "candidatos": [
+        "Juan Pérez",
+        "María García",
+        "No sé",
+        "Ninguno"
+      ]
+    },
+    {
+      "id": 1701234567894,
+      "titulo": "Tesorero",
+      "candidatos": [
+        "Carlos Rodríguez",
+        "Ana Martínez",
+        "Luis Fernández",
+        "No sé",
+        "Ninguno"
+      ]
+    },
+    {
+      "id": 1701234567895,
+      "titulo": "¿Está de acuerdo con la nueva política de horarios?",
+      "candidatos": [
+        "Sí, totalmente de acuerdo",
+        "Parcialmente de acuerdo",
+        "En desacuerdo",
+        "No tengo opinión"
+      ]
+    }
+  ],
+  "votes": [
+    {
+      "id": 1701234567896,
+      "email": "juan.perez@example.com",
+      "votos": {
+        "1701234567893": "María García",
+        "1701234567894": "Carlos Rodríguez",
+        "1701234567895": "Sí, totalmente de acuerdo"
+      },
+      "fecha": "2024-12-01T14:30:00.000Z"
+    },
+    {
+      "id": 1701234567897,
+      "email": "carlos.rodriguez@example.com",
+      "votos": {
+        "1701234567893": "Juan Pérez",
+        "1701234567894": "Ana Martínez",
+        "1701234567895": "Parcialmente de acuerdo"
+      },
+      "fecha": "2024-12-01T15:45:00.000Z"
+    }
+  ]
+}

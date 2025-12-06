@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Votación - Sistema de Encuestas</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="notification" class="notification"></div>
+    
+    <div class="container" style="max-width: 800px;">
+        <h1 class="main-title">Encuesta de Votación</h1>
+        
+        <div id="votingContainer">
+            <!-- Contenido dinámico -->
+        </div>
+    </div>
+
+    <script>
+        // Cargar datos del localStorage
+        let participants = JSON.parse(localStorage.getItem('participants')) || [];
+        let positions = JSON.parse(localStorage.getItem('positions')) || [];
+        let votes = JSON.parse(localStorage.getItem('votes')) || [];
+
+        // Obtener email de la URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const email = urlParams.get('email');
+
+        // Función para mostrar notificaciones
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification show ${type}`;
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        // Inicializar página
+        function init() {
+            const container = document.getElementById('votingContainer');
+
+            // Validar que hay un email en la URL
+            if (!email) {
+                container.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 60px 30px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+                        <h2 style="color: #f59e0b; margin-bottom: 10px;">Acceso Inválido</h2>
+                        <p style="color: #6b7280;">Debe acceder mediante el enlace enviado a su correo electrónico.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Buscar participante
+            const participant = participants.find(p => p.email === email);
+
+            // Validar que el participante existe
+            if (!participant) {
+                container.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 60px 30px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">❌</div>
+                        <h2 style="color: #ef4444; margin-bottom: 10px;">Correo No Registrado</h2>
+                        <p style="color: #6b7280;">El correo <strong>${email}</strong> no está registrado en el sistema.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Validar que no haya votado
+            if (participant.haVotado) {
+                container.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 60px 30px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">✅</div>
+                        <h2 style="color: #10b981; margin-bottom: 10px;">¡Gracias por Participar!</h2>
+                        <p style="color: #6b7280;">Su voto ya ha sido registrado exitosamente.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Validar que existan posiciones
+            if (positions.length === 0) {
+                container.innerHTML = `
+                    <div class="card" style="text-align: center; padding: 60px 30px;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">⚠️</div>
+                        <h2 style="color: #f59e0b; margin-bottom: 10px;">Encuesta No Disponible</h2>
+                        <p style="color: #6b7280;">No hay preguntas configuradas para esta encuesta.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Mostrar formulario de votación
+            renderVotingForm(participant);
+        }
+
+        // Renderizar formulario de votación
+        function renderVotingForm(participant) {
+            const container = document.getElementById('votingContainer');
+            
+            container.innerHTML = `
+                <div class="card">
+                    <p style="color: #6b7280; margin-bottom: 30px; font-size: 15px;">
+                        Votando como: <strong>${participant.nombre} ${participant.apellido}</strong><br>
+                        <span style="font-size: 14px;">${participant.email}</span>
+                    </p>
+                    
+                    <div id="questionsContainer">
+                        ${positions.map((pos, index) => `
+                            <div class="position-item" style="margin-bottom: 30px;">
+                                <h3 style="margin-bottom: 15px; color: #333; font-size: 1.2em;">
+                                    ${index + 1}. ${pos.titulo}
+                                </h3>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    ${pos.candidatos.map((cand, idx) => `
+                                        <label style="display: flex; align-items: center; gap: 12px; padding: 12px; cursor: pointer; border-radius: 8px; border: 2px solid #e5e7eb; transition: all 0.2s ease;" 
+                                               class="option-label"
+                                               onmouseover="this.style.borderColor='#667eea'; this.style.background='#f0f4ff'"
+                                               onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='transparent'"
+                                               onclick="selectOption(this)">
+                                            <input type="radio" name="position_${pos.id}" value="${cand}" 
+                                                   style="width: 20px; height: 20px; cursor: pointer; accent-color: #667eea;">
+                                            <span style="font-size: 15px; flex: 1;">${cand}</span>
+                                        </label>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <button class="btn btn-success" onclick="submitVote()" 
+                            style="width: 100%; padding: 16px; font-size: 17px; margin-top: 30px;">
+                        ✅ Enviar Mi Voto
+                    </button>
+                </div>
+            `;
+        }
+
+        // Marcar opción seleccionada visualmente
+        function selectOption(label) {
+            // Obtener el grupo de opciones
+            const parent = label.parentElement;
+            const allLabels = parent.querySelectorAll('.option-label');
+            
+            // Resetear todos los estilos
+            allLabels.forEach(l => {
+                l.style.borderColor = '#e5e7eb';
+                l.style.background = 'transparent';
+                l.style.fontWeight = 'normal';
+            });
+            
+            // Aplicar estilo a la opción seleccionada
+            if (label.querySelector('input').checked) {
+                label.style.borderColor = '#667eea';
+                label.style.background = '#f0f4ff';
+                label.style.fontWeight = '600';
+            }
+        }
+
+        // Enviar voto
+        function submitVote() {
+            const currentVotes = {};
+            let allAnswered = true;
+
+            // Recolectar votos
+            positions.forEach(pos => {
+                const selected = document.querySelector(`input[name="position_${pos.id}"]:checked`);
+                if (selected) {
+                    currentVotes[pos.id] = selected.value;
+                } else {
+                    allAnswered = false;
+                }
+            });
+
+            // Validar que todas las preguntas estén respondidas
+            if (!allAnswered) {
+                showNotification('Por favor responda todas las preguntas', 'error');
+                return;
+            }
+
+            // Confirmar envío
+            if (!confirm('¿Está seguro de enviar su voto? Esta acción no se puede deshacer.')) {
+                return;
+            }
+
+            // Guardar voto
+            const newVote = {
+                id: Date.now(),
+                email: email,
+                votos: currentVotes,
+                fecha: new Date().toISOString()
+            };
+
+            votes.push(newVote);
+            localStorage.setItem('votes', JSON.stringify(votes));
+
+            // Marcar participante como votado
+            const participantIndex = participants.findIndex(p => p.email === email);
+            if (participantIndex !== -1) {
+                participants[participantIndex].haVotado = true;
+                localStorage.setItem('participants', JSON.stringify(participants));
+            }
+
+            // Mostrar confirmación
+            const container = document.getElementById('votingContainer');
+            container.innerHTML = `
+                <div class="card" style="text-align: center; padding: 60px 30px;">
+                    <div style="font-size: 80px; margin-bottom: 20px; animation: scaleIn 0.5s ease;">✅</div>
+                    <h2 style="color: #10b981; margin-bottom: 15px; font-size: 2em;">¡Gracias por Participar!</h2>
+                    <p style="color: #6b7280; font-size: 16px; line-height: 1.6;">
+                        Su voto ha sido registrado exitosamente.<br>
+                        Agradecemos su tiempo y participación en esta encuesta.
+                    </p>
+                </div>
+            `;
+
+            // Animación de confirmación
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes scaleIn {
+                    from {
+                        transform: scale(0);
+                        opacity: 0;
+                    }
+                    to {
+                        transform: scale(1);
+                        opacity: 1;
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Inicializar al cargar la página
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
