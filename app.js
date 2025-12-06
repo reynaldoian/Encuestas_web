@@ -7,7 +7,6 @@ let votes = [];
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
     initTabs();
-    // Removida la verificación de modo votación ya que usamos vote.html
 });
 
 // Cargar datos del localStorage
@@ -37,7 +36,7 @@ function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     notification.textContent = message;
     notification.className = `notification show ${type}`;
-    
+
     setTimeout(() => {
         notification.classList.remove('show');
     }, 4000);
@@ -46,22 +45,19 @@ function showNotification(message, type = 'success') {
 // Sistema de pestañas
 function initTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
-    
+
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const tabName = this.dataset.tab;
-            
-            // Remover clase active de todos los botones y contenidos
+
             tabBtns.forEach(b => b.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            
-            // Agregar clase active al botón y contenido seleccionado
+
             this.classList.add('active');
             document.getElementById(tabName).classList.add('active');
-            
-            // Actualizar resultados si se abre esa pestaña
+
             if (tabName === 'results') {
                 renderResults();
             }
@@ -80,19 +76,16 @@ function registerParticipant() {
     const campo2 = document.getElementById('participantCampo2').value.trim();
     const campo3 = document.getElementById('participantCampo3').value.trim();
 
-    // Validaciones
     if (!email || !nombre || !apellido) {
         showNotification('Complete los campos obligatorios (Email, Nombre, Apellido)', 'error');
         return;
     }
 
-    // Verificar si el email ya existe
     if (participants.find(p => p.email === email)) {
         showNotification('Este correo ya está registrado', 'error');
         return;
     }
 
-    // Crear nuevo participante
     const newParticipant = {
         id: Date.now(),
         email,
@@ -110,7 +103,6 @@ function registerParticipant() {
     renderParticipants();
     showNotification('Participante registrado exitosamente');
 
-    // Limpiar formulario
     document.getElementById('participantEmail').value = '';
     document.getElementById('participantNombre').value = '';
     document.getElementById('participantApellido').value = '';
@@ -123,9 +115,9 @@ function registerParticipant() {
 function renderParticipants() {
     const tbody = document.getElementById('participantsTableBody');
     const count = document.getElementById('participantCount');
-    
+
     count.textContent = participants.length;
-    
+
     if (participants.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 30px; color: #6b7280;">No hay participantes registrados</td></tr>';
         return;
@@ -161,10 +153,9 @@ function deleteParticipant(id) {
 
 // Enviar correo individual
 function sendEmail(email) {
-    // Crear URL para vote.html
-     const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
+    const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
     const surveyUrl = `${baseUrl}vote.html?email=${encodeURIComponent(email)}`;
-    
+
     const subject = encodeURIComponent('Invitación a Encuesta');
     const body = encodeURIComponent(
         `Estimado/a participante,\n\n` +
@@ -172,23 +163,9 @@ function sendEmail(email) {
         `Para votar, haga clic en el siguiente enlace:\n${surveyUrl}\n\n` +
         `Gracias por su participación.`
     );
-    
+
     window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
     showNotification('Cliente de correo abierto');
-}
-
-// Enviar correos a todos los participantes
-function sendAllEmails() {
-    if (participants.length === 0) {
-        showNotification('No hay participantes registrados', 'error');
-        return;
-    }
-
-    participants.forEach((p, index) => {
-        setTimeout(() => sendEmail(p.email), index * 100);
-    });
-    
-    showNotification(`Enviando ${participants.length} correos...`);
 }
 
 // ==================== CARGOS/POSICIONES ====================
@@ -198,24 +175,18 @@ function registerPosition() {
     const titulo = document.getElementById('positionTitulo').value.trim();
     const candidatos = document.getElementById('positionCandidatos').value.trim();
 
-    // Validaciones
     if (!titulo || !candidatos) {
         showNotification('Complete todos los campos', 'error');
         return;
     }
 
-    // Procesar candidatos
-    const candidatosArray = candidatos
-        .split(',')
-        .map(c => c.trim())
-        .filter(c => c);
+    const candidatosArray = candidatos.split(',').map(c => c.trim()).filter(c => c);
 
     if (candidatosArray.length === 0) {
         showNotification('Agregue al menos un candidato', 'error');
         return;
     }
 
-    // Crear nuevo cargo
     const newPosition = {
         id: Date.now(),
         titulo,
@@ -227,7 +198,6 @@ function registerPosition() {
     renderPositions();
     showNotification('Cargo agregado exitosamente');
 
-    // Limpiar formulario
     document.getElementById('positionTitulo').value = '';
     document.getElementById('positionCandidatos').value = '';
 }
@@ -236,9 +206,9 @@ function registerPosition() {
 function renderPositions() {
     const container = document.getElementById('positionsList');
     const count = document.getElementById('positionCount');
-    
+
     count.textContent = positions.length;
-    
+
     if (positions.length === 0) {
         container.innerHTML = '<p style="text-align: center; padding: 30px; color: #6b7280;">No hay cargos registrados</p>';
         return;
@@ -267,11 +237,6 @@ function deletePosition(id) {
     }
 }
 
-// ==================== VOTACIÓN ====================
-
-// Las funciones de votación ahora están en vote.html
-// Esta sección se mantiene vacía para organización del código
-
 // ==================== RESULTADOS ====================
 
 // Renderizar resultados
@@ -281,7 +246,6 @@ function renderResults() {
     const statParticipationRate = document.getElementById('statParticipationRate');
     const resultsContent = document.getElementById('resultsContent');
 
-    // Estadísticas generales
     const totalParticipants = participants.length;
     const totalVotes = votes.length;
     const participationRate = totalParticipants > 0 
@@ -292,7 +256,6 @@ function renderResults() {
     statTotalVotes.textContent = totalVotes;
     statParticipationRate.textContent = participationRate + '%';
 
-    // Calcular resultados por posición
     if (positions.length === 0) {
         resultsContent.innerHTML = '<p style="text-align: center; padding: 30px; color: #6b7280;">No hay cargos configurados</p>';
         return;
@@ -304,8 +267,7 @@ function renderResults() {
     }
 
     const results = {};
-    
-    // Inicializar contadores
+
     positions.forEach(pos => {
         results[pos.id] = {
             titulo: pos.titulo,
@@ -316,7 +278,6 @@ function renderResults() {
         });
     });
 
-    // Contar votos
     votes.forEach(vote => {
         Object.entries(vote.votos).forEach(([posId, candidato]) => {
             if (results[posId] && results[posId].votos.hasOwnProperty(candidato)) {
@@ -325,18 +286,20 @@ function renderResults() {
         });
     });
 
-    // Renderizar resultados
-    resultsContent.innerHTML = Object.values(results).map(result => {
+    resultsContent.innerHTML = Object.values(results).map((result, idx) => {
         const sortedVotes = Object.entries(result.votos).sort((a, b) => b[1] - a[1]);
-        const maxVotes = Math.max(...Object.values(result.votos));
+        const labels = sortedVotes.map(([cand]) => cand);
+        const data = sortedVotes.map(([, votos]) => votos);
+        const chartId = `chart_${idx}`;
 
         return `
             <div class="result-section">
                 <h3 class="result-title">${result.titulo}</h3>
+                <canvas id="${chartId}" width="400" height="200" style="margin-bottom: 20px;"></canvas>
                 ${sortedVotes.map(([candidato, votos]) => {
                     const percentage = totalVotes > 0 ? ((votos / totalVotes) * 100).toFixed(1) : 0;
-                    const barWidth = maxVotes > 0 ? (votos / maxVotes) * 100 : 0;
-                    
+                    const barWidth = Math.max(...Object.values(result.votos)) > 0 ? (votos / Math.max(...Object.values(result.votos))) * 100 : 0;
+
                     return `
                         <div class="result-item">
                             <div class="result-header">
@@ -354,4 +317,37 @@ function renderResults() {
             </div>
         `;
     }).join('');
+
+    setTimeout(() => {
+        Object.values(results).forEach((result, idx) => {
+            const sortedVotes = Object.entries(result.votos).sort((a, b) => b[1] - a[1]);
+            const labels = sortedVotes.map(([cand]) => cand);
+            const data = sortedVotes.map(([, votos]) => votos);
+            const ctx = document.getElementById(`chart_${idx}`);
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Votos',
+                            data: data,
+                            backgroundColor: 'rgba(102, 126, 234, 0.7)',
+                            borderColor: 'rgba(102, 126, 234, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { stepSize: 1 } }
+                        }
+                    }
+                });
+            }
+        });
+    }, 100);
 }
