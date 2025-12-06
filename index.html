@@ -17,15 +17,9 @@
 
         <!-- Navegación por pestañas -->
         <div class="tabs">
-            <button class="tab-btn active" data-tab="participants">
-                📋 Participantes
-            </button>
-            <button class="tab-btn" data-tab="positions">
-                📝 Cargos/Preguntas
-            </button>
-            <button class="tab-btn" data-tab="results">
-                📊 Resultados
-            </button>
+            <button class="tab-btn active" data-tab="participants">📋 Participantes</button>
+            <button class="tab-btn" data-tab="positions">📝 Cargos/Preguntas</button>
+            <button class="tab-btn" data-tab="results">📊 Resultados</button>
         </div>
 
         <!-- Contenido de las pestañas -->
@@ -42,17 +36,13 @@
                         <input type="text" id="participantCampo2" placeholder="Campo 2">
                         <input type="text" id="participantCampo3" placeholder="Campo 3">
                     </div>
-                    <button class="btn btn-primary" onclick="registerParticipant()">
-                        ➕ Registrar Participante
-                    </button>
+                    <button class="btn btn-primary" onclick="registerParticipant()">➕ Registrar Participante</button>
                 </div>
 
                 <div class="card">
                     <div class="card-header">
                         <h3>Participantes Registrados (<span id="participantCount">0</span>)</h3>
-                        <button class="btn btn-success btn-sm" onclick="sendAllEmails()">
-                            ✉️ Enviar a Todos
-                        </button>
+                        <button class="btn btn-success btn-sm" onclick="sendAllEmails()">✉️ Enviar a Todos</button>
                     </div>
                     <div class="table-container">
                         <table id="participantsTable">
@@ -65,9 +55,7 @@
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="participantsTableBody">
-                                <!-- Contenido dinámico -->
-                            </tbody>
+                            <tbody id="participantsTableBody"></tbody>
                         </table>
                     </div>
                 </div>
@@ -80,16 +68,12 @@
                     <input type="text" id="positionTitulo" placeholder="Título del cargo o pregunta *" class="input-full" required>
                     <textarea id="positionCandidatos" placeholder="Candidatos u opciones (separados por comas) *" rows="3" class="input-full" required></textarea>
                     <p class="help-text">Ejemplo: Juan Pérez, María García, No sé, Ninguno</p>
-                    <button class="btn btn-primary" onclick="registerPosition()">
-                        ➕ Agregar Cargo
-                    </button>
+                    <button class="btn btn-primary" onclick="registerPosition()">➕ Agregar Cargo</button>
                 </div>
 
                 <div class="card">
                     <h3 class="card-title">Cargos Registrados (<span id="positionCount">0</span>)</h3>
-                    <div id="positionsList">
-                        <!-- Contenido dinámico -->
-                    </div>
+                    <div id="positionsList"></div>
                 </div>
             </div>
 
@@ -112,17 +96,25 @@
 
                 <div class="card">
                     <h2 class="card-title">📊 Resultados de la Encuesta</h2>
-                    <div id="resultsContent">
-                        <div style="margin-bottom: 20px;">
-                            <label for="chartType" style="font-weight: 600; margin-right: 10px;">Tipo de gráfica:</label>
-                            <select id="chartType" onchange="renderResults()">
-                                <option value="bar">Barras</option>
-                                <option value="line">Línea</option>
-                                <option value="pie">Pastel</option>
-                                <option value="doughnut">Dona</option>
-                            </select>
-                        </div>
+
+                    <!-- Selector de tipo de gráfica -->
+                    <div style="margin-bottom: 20px;">
+                        <label for="chartType" style="font-weight: 600; margin-right: 10px;">Tipo de gráfica:</label>
+                        <select id="chartType" onchange="renderResults()">
+                            <option value="bar">Barras</option>
+                            <option value="line">Línea</option>
+                            <option value="pie">Pastel</option>
+                            <option value="doughnut">Dona</option>
+                        </select>
                     </div>
+
+                    <!-- Botón para descargar gráfica -->
+                    <div style="margin-bottom: 20px;">
+                        <button class="btn btn-success btn-sm" onclick="descargarGrafica()">📥 Descargar Gráfica</button>
+                    </div>
+
+                    <!-- Contenido dinámico de resultados -->
+                    <div id="resultsContent"></div>
                 </div>
             </div>
         </div>
