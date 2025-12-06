@@ -1,15 +1,16 @@
-// Variables globales para almacenar datos
+// Variables globales
 let participants = [];
 let positions = [];
 let votes = [];
+let charts = []; // Para almacenar instancias de Chart.js
 
-// Inicialización de la aplicación
+// Inicialización
 document.addEventListener('DOMContentLoaded', function() {
     loadData();
     initTabs();
 });
 
-// Cargar datos del localStorage
+// Cargar datos de localStorage
 function loadData() {
     const storedParticipants = localStorage.getItem('participants');
     const storedPositions = localStorage.getItem('positions');
@@ -24,50 +25,37 @@ function loadData() {
     renderResults();
 }
 
-// Guardar datos en localStorage
+// Guardar datos
 function saveData() {
     localStorage.setItem('participants', JSON.stringify(participants));
     localStorage.setItem('positions', JSON.stringify(positions));
     localStorage.setItem('votes', JSON.stringify(votes));
 }
 
-// Sistema de notificaciones
+// Notificaciones
 function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     notification.textContent = message;
     notification.className = `notification show ${type}`;
-
-    setTimeout(() => {
-        notification.classList.remove('show');
-    }, 4000);
+    setTimeout(() => notification.classList.remove('show'), 4000);
 }
 
-// Sistema de pestañas
+// Pestañas
 function initTabs() {
     const tabBtns = document.querySelectorAll('.tab-btn');
-
     tabBtns.forEach(btn => {
         btn.addEventListener('click', function() {
             const tabName = this.dataset.tab;
-
             tabBtns.forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             this.classList.add('active');
             document.getElementById(tabName).classList.add('active');
-
-            if (tabName === 'results') {
-                renderResults();
-            }
+            if (tabName === 'results') renderResults();
         });
     });
 }
 
 // ==================== PARTICIPANTES ====================
-
-// Registrar nuevo participante
 function registerParticipant() {
     const email = document.getElementById('participantEmail').value.trim();
     const nombre = document.getElementById('participantNombre').value.trim();
@@ -77,16 +65,15 @@ function registerParticipant() {
     const campo3 = document.getElementById('participantCampo3').value.trim();
 
     if (!email || !nombre || !apellido) {
-        showNotification('Complete los campos obligatorios (Email, Nombre, Apellido)', 'error');
+        showNotification('Complete los campos obligatorios', 'error');
         return;
     }
-
     if (participants.find(p => p.email === email)) {
         showNotification('Este correo ya está registrado', 'error');
         return;
     }
 
-    const newParticipant = {
+    participants.push({
         id: Date.now(),
         email,
         nombre,
@@ -96,26 +83,20 @@ function registerParticipant() {
         campo3,
         registrado: new Date().toISOString(),
         haVotado: false
-    };
+    });
 
-    participants.push(newParticipant);
     saveData();
     renderParticipants();
     showNotification('Participante registrado exitosamente');
 
-    document.getElementById('participantEmail').value = '';
-    document.getElementById('participantNombre').value = '';
-    document.getElementById('participantApellido').value = '';
-    document.getElementById('participantCampo1').value = '';
-    document.getElementById('participantCampo2').value = '';
-    document.getElementById('participantCampo3').value = '';
+    // Limpiar formulario
+    ['participantEmail', 'participantNombre', 'participantApellido', 'participantCampo1', 'participantCampo2', 'participantCampo3']
+        .forEach(id => document.getElementById(id).value = '');
 }
 
-// Renderizar tabla de participantes
 function renderParticipants() {
     const tbody = document.getElementById('participantsTableBody');
     const count = document.getElementById('participantCount');
-
     count.textContent = participants.length;
 
     if (participants.length === 0) {
@@ -128,11 +109,7 @@ function renderParticipants() {
             <td>${p.email}</td>
             <td>${p.nombre}</td>
             <td>${p.apellido}</td>
-            <td>
-                ${p.haVotado 
-                    ? '<span class="badge badge-success">Votó</span>' 
-                    : '<span class="badge badge-pending">Pendiente</span>'}
-            </td>
+            <td>${p.haVotado ? '<span class="badge badge-success">Votó</span>' : '<span class="badge badge-pending">Pendiente</span>'}</td>
             <td>
                 <button class="btn-icon" onclick="sendEmail('${p.email}')" title="Enviar correo">✉️</button>
                 <button class="btn-icon" onclick="deleteParticipant(${p.id})" title="Eliminar">🗑️</button>
@@ -141,7 +118,6 @@ function renderParticipants() {
     `).join('');
 }
 
-// Eliminar participante
 function deleteParticipant(id) {
     if (confirm('¿Está seguro de eliminar este participante?')) {
         participants = participants.filter(p => p.id !== id);
@@ -151,11 +127,9 @@ function deleteParticipant(id) {
     }
 }
 
-// Enviar correo individual
 function sendEmail(email) {
     const baseUrl = window.location.origin + window.location.pathname.replace('index.html', '');
     const surveyUrl = `${baseUrl}vote.html?email=${encodeURIComponent(email)}`;
-
     const subject = encodeURIComponent('Invitación a Encuesta');
     const body = encodeURIComponent(
         `Estimado/a participante,\n\n` +
@@ -163,14 +137,20 @@ function sendEmail(email) {
         `Para votar, haga clic en el siguiente enlace:\n${surveyUrl}\n\n` +
         `Gracias por su participación.`
     );
-
     window.open(`mailto:${email}?subject=${subject}&body=${body}`, '_blank');
     showNotification('Cliente de correo abierto');
 }
 
-// ==================== CARGOS/POSICIONES ====================
+function sendAllEmails() {
+    if (participants.length === 0) {
+        showNotification('No hay participantes registrados', 'error');
+        return;
+    }
+    participants.forEach((p, idx) => setTimeout(() => sendEmail(p.email), idx * 100));
+    showNotification(`Enviando ${participants.length} correos...`);
+}
 
-// Registrar nuevo cargo
+// ==================== CARGOS ====================
 function registerPosition() {
     const titulo = document.getElementById('positionTitulo').value.trim();
     const candidatos = document.getElementById('positionCandidatos').value.trim();
@@ -181,19 +161,17 @@ function registerPosition() {
     }
 
     const candidatosArray = candidatos.split(',').map(c => c.trim()).filter(c => c);
-
     if (candidatosArray.length === 0) {
         showNotification('Agregue al menos un candidato', 'error');
         return;
     }
 
-    const newPosition = {
+    positions.push({
         id: Date.now(),
         titulo,
         candidatos: candidatosArray
-    };
+    });
 
-    positions.push(newPosition);
     saveData();
     renderPositions();
     showNotification('Cargo agregado exitosamente');
@@ -202,11 +180,9 @@ function registerPosition() {
     document.getElementById('positionCandidatos').value = '';
 }
 
-// Renderizar lista de cargos
 function renderPositions() {
     const container = document.getElementById('positionsList');
     const count = document.getElementById('positionCount');
-
     count.textContent = positions.length;
 
     if (positions.length === 0) {
@@ -227,7 +203,6 @@ function renderPositions() {
     `).join('');
 }
 
-// Eliminar cargo
 function deletePosition(id) {
     if (confirm('¿Está seguro de eliminar este cargo?')) {
         positions = positions.filter(p => p.id !== id);
@@ -238,8 +213,6 @@ function deletePosition(id) {
 }
 
 // ==================== RESULTADOS ====================
-
-// Renderizar resultados
 function renderResults() {
     const statTotalParticipants = document.getElementById('statTotalParticipants');
     const statTotalVotes = document.getElementById('statTotalVotes');
@@ -249,9 +222,7 @@ function renderResults() {
 
     const totalParticipants = participants.length;
     const totalVotes = votes.length;
-    const participationRate = totalParticipants > 0 
-        ? ((totalVotes / totalParticipants) * 100).toFixed(1)
-        : 0;
+    const participationRate = totalParticipants > 0 ? ((totalVotes / totalParticipants) * 100).toFixed(1) : 0;
 
     statTotalParticipants.textContent = totalParticipants;
     statTotalVotes.textContent = totalVotes;
@@ -268,15 +239,9 @@ function renderResults() {
     }
 
     const results = {};
-
     positions.forEach(pos => {
-        results[pos.id] = {
-            titulo: pos.titulo,
-            votos: {}
-        };
-        pos.candidatos.forEach(cand => {
-            results[pos.id].votos[cand] = 0;
-        });
+        results[pos.id] = { titulo: pos.titulo, votos: {} };
+        pos.candidatos.forEach(cand => results[pos.id].votos[cand] = 0);
     });
 
     votes.forEach(vote => {
@@ -287,20 +252,24 @@ function renderResults() {
         });
     });
 
-    resultsContent.innerHTML = Object.values(results).map((result, idx) => {
+    // Limpiar gráficos anteriores
+    charts.forEach(chart => chart.destroy());
+    charts = [];
+
+    let html = '';
+    Object.values(results).forEach((result, idx) => {
         const sortedVotes = Object.entries(result.votos).sort((a, b) => b[1] - a[1]);
         const labels = sortedVotes.map(([cand]) => cand);
         const data = sortedVotes.map(([, votos]) => votos);
         const chartId = `chart_${idx}`;
 
-        return `
+        html += `
             <div class="result-section">
                 <h3 class="result-title">${result.titulo}</h3>
                 <canvas id="${chartId}" width="400" height="200" style="margin-bottom: 20px;"></canvas>
                 ${sortedVotes.map(([candidato, votos]) => {
                     const percentage = totalVotes > 0 ? ((votos / totalVotes) * 100).toFixed(1) : 0;
                     const barWidth = Math.max(...Object.values(result.votos)) > 0 ? (votos / Math.max(...Object.values(result.votos))) * 100 : 0;
-
                     return `
                         <div class="result-item">
                             <div class="result-header">
@@ -317,7 +286,8 @@ function renderResults() {
                 }).join('')}
             </div>
         `;
-    }).join('');
+    });
+    resultsContent.innerHTML = html;
 
     setTimeout(() => {
         Object.values(results).forEach((result, idx) => {
@@ -327,7 +297,7 @@ function renderResults() {
             const ctx = document.getElementById(`chart_${idx}`);
             if (ctx) {
                 const isPieOrDoughnut = chartType === 'pie' || chartType === 'doughnut';
-                new Chart(ctx, {
+                const chart = new Chart(ctx, {
                     type: chartType,
                     data: {
                         labels: labels,
@@ -361,7 +331,26 @@ function renderResults() {
                         }
                     }
                 });
+                charts.push(chart);
             }
         });
     }, 100);
+}
+
+// ==================== DESCARGAR GRÁFICA ====================
+function descargarGrafica() {
+    if (charts.length === 0) {
+        showNotification('No hay gráficas para descargar', 'error');
+        return;
+    }
+
+    charts.forEach((chart, idx) => {
+        const url = chart.toBase64Image();
+        const link = document.createElement('a');
+        link.download = `grafica_${idx + 1}.png`;
+        link.href = url;
+        link.click();
+    });
+
+    showNotification('Gráfica(s) descargada(s) ✅');
 }
