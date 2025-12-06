@@ -113,7 +113,15 @@
                 <div class="card">
                     <h2 class="card-title">📊 Resultados de la Encuesta</h2>
                     <div id="resultsContent">
-                        <!-- Contenido dinámico -->
+                        <div style="margin-bottom: 20px;">
+    <label for="chartType" style="font-weight: 600; margin-right: 10px;">Tipo de gráfica:</label>
+    <select id="chartType" onchange="renderResults()">
+        <option value="bar">Barras</option>
+        <option value="line">Línea</option>
+        <option value="pie">Pastel</option>
+        <option value="doughnut">Dona</option>
+    </select>
+
                     </div>
                 </div>
             </div>
